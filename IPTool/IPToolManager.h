@@ -8,6 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
+FOUNDATION_EXTERN NSString * const NetTypeCellular;
+FOUNDATION_EXTERN NSString * const NetTypeWifi;
+FOUNDATION_EXTERN NSString * const NetTypeVPN0;
+FOUNDATION_EXTERN NSString * const NetTypeVPN1;
 
 @interface IPToolManager : NSObject
 /**
@@ -22,6 +26,10 @@
  */
 -(NSString *)currentIpAddress;
 
+/**
+ 根据网卡类型获取
+ */
+- (NSString *)currentIpAddressByType:(NSString *)type;
 
 /**
  *  方法二

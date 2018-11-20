@@ -21,7 +21,8 @@
     //方法一：此方法获取具体的ip地址
     IPToolManager *ipManager = [IPToolManager sharedManager];
     NSLog(@"当前设备的ip地址：%@",[ipManager currentIpAddress]);
-    
+    NSLog(@"wifi:%@", [ipManager currentIpAddressByType:NetTypeWifi]);
+    NSLog(@"cellular:%@", [ipManager currentIpAddressByType:NetTypeCellular]);
     
     //方法二：此方法打印具体的ip详细信息
     //IPToolManager *ipManager = [IPToolManager sharedManager];

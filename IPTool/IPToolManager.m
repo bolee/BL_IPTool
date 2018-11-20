@@ -9,9 +9,15 @@
 #import "IPToolManager.h"
 #import "IPAddressConfig.h"
 
+NSString * const NetTypeCellular = @"pdp_ip0";
+NSString * const NetTypeWifi = @"en0";
+NSString * const NetTypeVPN0 = @"utun0";
+NSString * const NetTypeVPN1 = @"utun1";
+
 #define IOS_CELLULAR    @"pdp_ip0"
 #define IOS_WIFI        @"en0"
 #define IOS_VPN         @"utun0"
+#define IOS_VPN1        @"utun1"
 #define IP_ADDR_IPv4    @"ipv4"
 #define IP_ADDR_IPv6    @"ipv6"
 
@@ -37,24 +43,33 @@
 
 -(NSString *)currentIpAddress{
     
-    return [self  getIPAddress:YES];
+    return [self  getIPAddress:YES withType:@""];
 }
-
-- (NSString *)getIPAddress:(BOOL)preferIPv4
+- (NSString *)currentIpAddressByType:(NSString *)type {
+    return [self getIPAddress:YES withType:type];
+}
+- (NSString *)getIPAddress:(BOOL)preferIPv4 withType:(NSString*)type
 {
     NSArray *searchArray = preferIPv4 ?
-    @[ IOS_VPN @"/" IP_ADDR_IPv4, IOS_VPN @"/" IP_ADDR_IPv6, IOS_WIFI @"/" IP_ADDR_IPv4, IOS_WIFI @"/" IP_ADDR_IPv6, IOS_CELLULAR @"/" IP_ADDR_IPv4, IOS_CELLULAR @"/" IP_ADDR_IPv6 ] :
-    @[ IOS_VPN @"/" IP_ADDR_IPv6, IOS_VPN @"/" IP_ADDR_IPv4, IOS_WIFI @"/" IP_ADDR_IPv6, IOS_WIFI @"/" IP_ADDR_IPv4, IOS_CELLULAR @"/" IP_ADDR_IPv6, IOS_CELLULAR @"/" IP_ADDR_IPv4 ];
+    @[IOS_VPN1 @"/" IP_ADDR_IPv4, IOS_VPN1 @"/" IP_ADDR_IPv6, IOS_VPN @"/" IP_ADDR_IPv4, IOS_VPN @"/" IP_ADDR_IPv6, IOS_WIFI @"/" IP_ADDR_IPv4, IOS_WIFI @"/" IP_ADDR_IPv6, IOS_CELLULAR @"/" IP_ADDR_IPv4, IOS_CELLULAR @"/" IP_ADDR_IPv6 ] :
+    @[IOS_VPN1 @"/" IP_ADDR_IPv6, IOS_VPN1 @"/" IP_ADDR_IPv4 , IOS_VPN @"/" IP_ADDR_IPv6, IOS_VPN @"/" IP_ADDR_IPv4, IOS_WIFI @"/" IP_ADDR_IPv6, IOS_WIFI @"/" IP_ADDR_IPv4, IOS_CELLULAR @"/" IP_ADDR_IPv6, IOS_CELLULAR @"/" IP_ADDR_IPv4 ];
     
     NSDictionary *addresses = [self getIPAddresses];
     NSLog(@"addresses: %@", addresses);
     
     __block NSString *address;
-    [searchArray enumerateObjectsUsingBlock:^(NSString *key, NSUInteger idx, BOOL *stop)
-     {
-         address = addresses[key];
-         if(address) *stop = YES;
-     } ];
+    NSString * netType = [type stringByAppendingFormat:@"/%@", IP_ADDR_IPv6];
+    if (preferIPv4) {
+        netType = [type stringByAppendingFormat:@"/%@", IP_ADDR_IPv4];
+    }
+    [searchArray enumerateObjectsUsingBlock:^(NSString *key, NSUInteger idx, BOOL *stop){
+        if ([type length] > 0 && ![key isEqualToString:netType]) {
+
+        } else {
+            address = addresses[key];
+            if(address) *stop = YES;
+        }
+    }];
     return address ? address : @"0.0.0.0";
 }
 
